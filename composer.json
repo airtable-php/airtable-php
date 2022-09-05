@@ -1,0 +1,33 @@
+{
+    "name": "airtable-php/airtable-php",
+    "description": "PHP SDK for the Airtable API, syntax inspired by Laravel Eloquent",
+    "keywords": [
+        "airtable",
+        "api",
+        "php",
+        "sdk"
+    ],
+    "homepage": "https://github.com/airtable-php/airtable-php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Eric Chow",
+            "email": "yateric@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "illuminate/support": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AirtablePHP\\": "src"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
