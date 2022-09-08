@@ -6,9 +6,11 @@ use AirtablePHP\Query\Builder;
 use AirtablePHP\Query\Connection;
 use AirtablePHP\Query\HasMany;
 use AirtablePHP\Query\HasOne;
+use ArrayAccess;
 use DateTimeImmutable;
+use Illuminate\Contracts\Support\Arrayable;
 
-class Model
+class Model implements Arrayable, ArrayAccess
 {
     protected ?string $id = null;
 
@@ -74,6 +76,31 @@ class Model
         $filterByFormula = "OR({$filterByFormula})";
 
         return HasMany::make($modelClass)->filterByFormula($filterByFormula);
+    }
+
+    public function toArray(): array
+    {
+        return $this->getAttributes();
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return ! is_null($this->getAttribute($offset));
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->getAttribute($offset);
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        $this->setAttribute($offset, $value);
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        unset($this->attributes[$offset]);
     }
 
     public static function query(): Builder
