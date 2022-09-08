@@ -9,6 +9,7 @@ use AirtablePHP\Query\HasOne;
 use ArrayAccess;
 use DateTimeImmutable;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Collection;
 
 class Model implements Arrayable, ArrayAccess
 {
@@ -17,6 +18,8 @@ class Model implements Arrayable, ArrayAccess
     protected ?DateTimeImmutable $createdTime = null;
 
     protected array $attributes = [];
+
+    protected array $relations = [];
 
     public function __construct(?array $attributes)
     {
@@ -78,9 +81,36 @@ class Model implements Arrayable, ArrayAccess
         return HasMany::make($modelClass)->filterByFormula($filterByFormula);
     }
 
-    public function toArray(): array
+    public function load(array|string $relations): static
+    {
+        $relations = is_string($relations) ? func_get_args() : $relations;
+
+        foreach ($relations as $relation) {
+            $this->relations[$relation] = $this->{$relation};
+        }
+
+        return $this;
+    }
+
+    public function attributesToArray(): array
     {
         return $this->getAttributes();
+    }
+
+    public function relationsToArray(): array
+    {
+        return collect($this->relations)
+            ->map(fn (Model|Collection $relationModel) =>
+                $relationModel instanceof Model
+                    ? $relationModel->toArray()
+                    : $relationModel->map(fn (Model $relationModel) => $relationModel->toArray())
+            )
+            ->all();
+    }
+
+    public function toArray(): array
+    {
+        return array_merge($this->attributesToArray(), $this->relationsToArray());
     }
 
     public function offsetExists(mixed $offset): bool
