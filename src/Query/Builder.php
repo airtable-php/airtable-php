@@ -137,4 +137,23 @@ class Builder
     {
         return new static($modelClass);
     }
+
+    public function firstOrCreate(array $attributes, array $values = []): ?Model
+    {
+        foreach ($attributes as $key => $value) {
+            $this->where($key, $value);
+        }
+
+        if ($record = $this->first()) {
+            return $record;
+        }
+
+        $recordData = [
+            'fields' => array_merge($attributes, $values),
+        ];
+
+        $record = $this->http()->post('', $recordData)->throw()->json();
+
+        return $this->createModelFromAirtableRecord($record);
+    }
 }
