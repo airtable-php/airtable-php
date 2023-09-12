@@ -6,33 +6,19 @@ use AirtablePHP\Query\Connection;
 
 class Airtable
 {
-    protected static ?string $apiKey = null;
-
-    protected static ?string $baseId = null;
-
     protected static array $tables = [];
 
-    public static function init(string $apiKey, ?string $baseId = null, array $tables = []): void
+    public static function init(string $apiKey, array $bases = []): void
     {
-        static::$apiKey = $apiKey;
-        static::$baseId = $baseId;
-
-        foreach ($tables as $modelClass => $tableId) {
-            static::initTable($modelClass, $tableId);
+        foreach ($bases as $baseId => $tables) {
+            foreach ($tables as $modelClass => $tableId) {
+                static::$tables[$modelClass] = new Connection($apiKey, $baseId, $tableId);
+            }
         }
-    }
-
-    public static function initTable(string $modelClass, string|Connection $tableId): void
-    {
-        static::$tables[$modelClass] = $tableId;
     }
 
     public static function getModelConnection(string $modelClass): Connection
     {
-        if (static::$tables[$modelClass] instanceof Connection) {
-            return static::$tables[$modelClass];
-        }
-
-        return new Connection(static::$apiKey, static::$baseId, static::$tables[$modelClass]);
+        return static::$tables[$modelClass] ?? throw new MissingTableConfigException($modelClass);
     }
 }
