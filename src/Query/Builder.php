@@ -141,6 +141,17 @@ class Builder
         return $this;
     }
 
+    public function update(string $id, array $attributes, string $method = 'patch'): Model
+    {
+        $data = [
+            'fields' => $attributes,
+        ];
+
+        $record = $this->http()->{$method}($id, $data)->throw()->json();
+
+        return $this->createModelFromAirtableRecord($record);
+    }
+
     protected function http(): PendingRequest
     {
         $baseUrl = "https://api.airtable.com/v0/{$this->connection->baseId}/{$this->connection->tableId}";

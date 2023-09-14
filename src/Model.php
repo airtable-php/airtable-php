@@ -133,6 +133,11 @@ class Model implements Arrayable, ArrayAccess
         unset($this->attributes[$offset]);
     }
 
+    public function update(array $attributes): static
+    {
+        return $this->query()->update($this->getId(), $attributes);
+    }
+
     public static function query(): Builder
     {
         return new Builder(static::class);
