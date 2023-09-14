@@ -16,6 +16,8 @@ class Builder
 
     protected array $wheres = [];
 
+    protected array $orders = [];
+
     protected ?int $limit = null;
 
     public function __construct(protected string $modelClass)
@@ -39,10 +41,26 @@ class Builder
         return $this;
     }
 
+    public function orderBy(string $field, string $direction = 'asc'): static
+    {
+        $this->orders[] = [
+            'field' => $field,
+            'direction' => $direction,
+        ];
+
+        return $this;
+    }
+
+    public function orderByDesc(string $field): static
+    {
+        return $this->orderBy($field, 'desc');
+    }
+
     public function first(): ?Model
     {
         $query = [
             'filterByFormula' => $this->getFilterByFormula(),
+            'sort' => $this->getSort(),
             'maxRecords' => 1,
             'pageSize' => 1,
         ];
@@ -63,6 +81,7 @@ class Builder
     {
         $query = [
             'filterByFormula' => $this->getFilterByFormula(),
+            'sort' => $this->getSort(),
             'maxRecords' => $this->limit,
             'offset' => null,
         ];
@@ -103,6 +122,11 @@ class Builder
         $filterByFormula = "AND({$filterByFormula})";
 
         return $filterByFormula;
+    }
+
+    public function getSort(): ?array
+    {
+        return $this->orders ? $this->orders : [];
     }
 
     public function take(int $value): static
