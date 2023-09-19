@@ -201,4 +201,36 @@ class Builder
 
         return $this->createModelFromAirtableRecord($record);
     }
+
+    public function updateOrCreate(array $attributes, array $values = []): ?Model
+    {
+        $mergedData = array_merge($attributes, $values);
+
+        foreach ($attributes as $key => $value) {
+            $this->where($key, $value);
+        }
+
+        if ($record = $this->first()) {
+            foreach ($values as $key => $value) {
+                if ($record->getAttribute($key) !== $value) {
+                    $updatedRecord = $this->http()
+                        ->patch($record->getId(), ['fields' => $mergedData])
+                        ->throw()
+                        ->json();
+
+                    return $this->createModelFromAirtableRecord($updatedRecord);
+                }
+            }
+
+            return $record;
+        }
+
+        $recordData = [
+            'fields' => $mergedData,
+        ];
+
+        $record = $this->http()->post('', $recordData)->throw()->json();
+
+        return $this->createModelFromAirtableRecord($record);
+    }
 }
