@@ -14,6 +14,8 @@ class Builder
 
     protected ?string $filterByFormula = null;
 
+    protected array $selects = [];
+
     protected array $wheres = [];
 
     protected array $orders = [];
@@ -23,6 +25,13 @@ class Builder
     public function __construct(protected string $modelClass)
     {
         $this->connection = Airtable::getModelConnection($this->modelClass);
+    }
+
+    public function select(array|string $fields): static
+    {
+        $this->selects = is_array($fields) ? $fields : func_get_args();
+
+        return $this;
     }
 
     public function filterByFormula(string $filterByFormula): static
@@ -80,6 +89,7 @@ class Builder
     public function get(): Collection
     {
         $query = [
+            'fields' => $this->selects ?: null,
             'filterByFormula' => $this->getFilterByFormula(),
             'sort' => $this->getSort(),
             'maxRecords' => $this->limit,
