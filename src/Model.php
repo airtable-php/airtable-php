@@ -56,6 +56,11 @@ class Model implements Arrayable, ArrayAccess
         return $this->attributes[$key] ?? null;
     }
 
+    public function getFirstAttribute(string $key): null|string|array
+    {
+        return $this->attributes[$key][0] ?? null;
+    }
+
     public function setAttribute(string $key, string $value): void
     {
         $this->attributes[$key] = $value;
