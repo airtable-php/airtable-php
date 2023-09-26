@@ -51,12 +51,12 @@ class Model implements Arrayable, ArrayAccess
         return $this->attributes;
     }
 
-    public function getAttribute(string $key): null|string|array
+    public function getAttribute(string $key): mixed
     {
         return $this->attributes[$key] ?? null;
     }
 
-    public function getFirstAttribute(string $key): null|string|array
+    public function getFirstAttribute(string $key): mixed
     {
         return $this->attributes[$key][0] ?? null;
     }
